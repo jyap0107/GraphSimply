@@ -1,20 +1,30 @@
 package org.graphsimply;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+
 
 public class GraphEdge extends Line {
     private GraphNode source;
     private GraphNode target;
     private GraphSimplyController view;
     private GraphSimplyViewModel viewModel;
-    private static int edgeId = 0;
+    private IntegerProperty weight = new SimpleIntegerProperty(100);
+    private Label label;
+    private IntegerProperty index;
 
     public GraphEdge(GraphNode source, GraphNode target, GraphSimplyViewModel viewModel, GraphSimplyController view) {
         this.source = source;
@@ -22,6 +32,7 @@ public class GraphEdge extends Line {
         this.view = view;
         this.viewModel = viewModel;
         this.setFill(Color.BLACK);
+        this.label = new Label(weight.get() + "");
         //region Edge relocation
         this.startXProperty().bind(Bindings.createDoubleBinding(() -> {
                 // Collision detection, make edge disappear.
@@ -99,39 +110,57 @@ public class GraphEdge extends Line {
             target.radiusProperty(), source.boundsInParentProperty(),
             target.boundsInParentProperty()));
         //endregion
+        //region label
+        this.label.layoutXProperty().bind(Bindings.createDoubleBinding(() -> Math.abs(this.getEndX() + this.getStartX())/2-15, this.startXProperty(), this.endXProperty()));
+        this.label.layoutYProperty().bind(Bindings.createDoubleBinding(() -> Math.abs(this.getEndY() + this.getStartY())/2-10,
+                this.startYProperty(), this.endYProperty()));
+        this.view.getPane().getChildren().add(this.label);
+        this.label.setMaxWidth(30);
+        this.label.setMinWidth(30);
+        this.label.setMaxHeight(20);
+        this.label.setMinHeight(20);
+        this.label.setAlignment(Pos.CENTER);
+        this.label.setBackground(new Background(new BackgroundFill(Color.WHITE, null, null)));
+        this.label.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.DOTTED, null, null)));
+        //endregion
+        //region label rightclick
+        ContextMenu menu = new ContextMenu();
+        MenuItem changeWeight = new MenuItem("Change weight");
+        Pane pane = this.view.getPane();
+        changeWeight.setOnAction(e -> {
+            System.out.println("Rename");
+        });
+        changeWeight.setOnAction(e -> {
+            TextInputDialog weightInput = new TextInputDialog(this.weight.get() +"");
+            weightInput.setHeaderText("Enter new weight: ");
+            weightInput.setGraphic(null);
+            weightInput.showAndWait();
+            int newWeight = Integer.parseInt(weightInput.getEditor().getText());
+            viewModel.updateWeight(this, newWeight);
+            System.out.println(this.weight.get());
+            System.out.println(viewModel.getWeights().get(this).get());
+        });
+        MenuItem delete = new MenuItem("Delete");
+        delete.setOnAction(e -> {
+            // Remove from display
+            pane.getChildren().removeAll(this, this.label);
+            // Remove from model
+            viewModel.removeEdge(this);
+        });
+        this.label.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
+            menu.show(pane, event.getScreenX(), event.getScreenY());
+            event.consume();
+        });
+        pane.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
+            menu.hide();
+        });
+        menu.getItems().addAll(changeWeight, delete);
+        //endregion
         this.viewModel.createNewEdge(this);
+        System.out.println(viewModel.getWeights().get(this));
+        this.weight.bind(viewModel.getWeights().get(this));
 
-//        //region Right click
-//        ContextMenu menu = new ContextMenu();
-//        MenuItem changeWeight = new MenuItem("Change Weight");
-//        MenuItem delete = new MenuItem("Delete");
-//        changeWeight.setOnAction(e -> {
-//
-//        });
-//        delete.setOnAction(e -> {
-//            this.source.removeEdge(this);
-//            this.target.removeEdge(this);
-//            this.view.getPane().getChildren().remove(this);
-//        });
-//        Line clickableLine = new Line();
-//        clickableLine.startXProperty().bind(this.startXProperty());
-//        clickableLine.startYProperty().bind(this.startYProperty());
-//        clickableLine.endXProperty().bind(this.endXProperty());
-//        clickableLine.endYProperty().bind(this.endYProperty());
-//        clickableLine.setStrokeWidth(10);
-//        clickableLine.setOpacity(0);
-//        clickableLine.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED,
-//                event -> {
-//                    menu.show(GraphNode.centerPane, event.getScreenX(),
-//                            event.getScreenY());
-//                    event.consume();
-//                });
-//        GraphNode.centerPane.addEventHandler(MouseEvent.MOUSE_PRESSED,
-//                event -> {
-//                    menu.hide();
-//                });
-//        GraphNode.centerPane.getChildren().add(clickableLine);
-//        menu.getItems().addAll(changeWeight, delete);
+        this.label.textProperty().bind(weight.asString());
 
     }
     public GraphNode getSource() {
@@ -140,5 +169,8 @@ public class GraphEdge extends Line {
     public GraphNode getTarget() {
         return target;
     }
-    public int getEdgeId() { return edgeId; }
+
+    public IntegerProperty getWeight() {
+        return weight;
+    }
 }

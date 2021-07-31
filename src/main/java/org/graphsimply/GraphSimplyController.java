@@ -62,10 +62,9 @@ public class GraphSimplyController implements Initializable {
     }
     public void createNode(MouseEvent e) {
         if (viewModel.getCursor().equals("node") && e.getButton() == MouseButton.PRIMARY) {
-            GraphNode node = new GraphNode(e.getX(), e.getY(), "N/A",
+            GraphNode node = new GraphNode(e.getX(), e.getY(),
                     this.viewModel, this);
             centerPane.getChildren().addAll(node, node.getLabel());
-            viewModel.addNode(node);
         }
     }
     public Pane getPane() {

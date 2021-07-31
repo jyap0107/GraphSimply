@@ -1,85 +1,70 @@
 package org.graphsimply;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class GraphSimplyModel {
 
-    private ArrayList<GraphNodeData> nodes = new ArrayList<>();
-    private ArrayList<GraphEdgeData> edges = new ArrayList<>();
     private Map<String, Map<String, Integer>> adjacencyList = new HashMap<>();
 
-    //region NODES: CREATE, ADD, REMOVE
-    // Handles purely the creation of a new node.
-    public void createNewNodeData(String name) {
-        GraphNodeData newNode = new GraphNodeData(name);
-        addNodeToLists(newNode);
+
+    public void createNewNode(GraphNode node, String name) {
+        adjacencyList.put(name, new HashMap<String, Integer>());
+        printLists();
     }
-    // Handles adding the new node to all the lists.
-    public void addNodeToLists(GraphNodeData node) {
-        nodes.add(node);
-        ArrayList<Integer> newList = new ArrayList<>();
-        adjacencyList.put(node.getName(), new HashMap<String, Integer>());
-    }
-    //Remove node from the master list and then the adjacency list.
+
     public void removeNodeFromList(String name) {
-        GraphNodeData toRemove = null;
-        for (GraphNodeData node : nodes) {
-            if (node.getName().equals(name)) {
-                nodes.remove(node);
-                toRemove = node;
-                break;
-            }
-        }
         adjacencyList.remove(name);
         adjacencyList.entrySet().removeIf(entry -> entry.getValue().entrySet().removeIf(entry2 -> entry2.getKey().equals(name)));
     }
-    //endregion
 
-    //region EDGES: CREATE, ADD, REMOVE
-    // Add edge to adjacency list, also adds edge to the source and target.
-    public void createNewEdgeData(int edgeId, GraphNode source, GraphNode target) {
-        GraphNodeData src = null;
-        GraphNodeData tgt = null;
-        for (GraphNodeData node : nodes) {
-            if (source.getName().equals(node.getName())) src = node;
-            if (target.getName().equals(node.getName())) tgt = node;
-        }
-        GraphEdgeData newEdge = new GraphEdgeData(edgeId, src, tgt);
-        addEdgeToLists(newEdge);
-    }
-    public void addEdgeToLists(GraphEdgeData edge) {
-        edges.add(edge);
-        GraphNodeData source = edge.getSource();
-        GraphNodeData target = edge.getTarget();
-        adjacencyList.get(source.getName()).put(target.getName(), edge.getWeight());
+    public void createNewEdge(GraphEdge edge) {
+        GraphNode source = edge.getSource();
+        GraphNode target = edge.getTarget();
+        adjacencyList.get(source.getName().get()).put(target.getName().get(), edge.getWeight().get());
+        adjacencyList.get(target.getName().get()).put(source.getName().get(), edge.getWeight().get());
+        printLists();
     }
     public void removeEdgeFromList(GraphEdge edge) {
-        GraphEdgeData edgeToRemove = null;
-        for (GraphEdgeData edgeData : edges) {
-            if (edgeData.getEdgeId() == edge.getEdgeId()) edgeToRemove = edgeData;
-        }
-        GraphNodeData source = edgeToRemove.getSource();
-        GraphNodeData target = edgeToRemove.getTarget();
-        adjacencyList.get(source.getName()).remove(target.getName());
+        String source = edge.getSource().getName().get();
+        String target = edge.getTarget().getName().get();
+        adjacencyList.get(source).remove(target);
+        adjacencyList.get(target).remove(source);
     }
-    //endregion
-    public void addEdgeToNode(GraphNode node, GraphNode edge) {
-        GraphNodeData nodeToAdd = null;
-        GraphNodeData edgeToAdd = null;
-        for (GraphNode node : nodes)
+    public String updateName(GraphNode node, String newName) {
+        String prevName = node.getName().get();
+        Map prevMap = adjacencyList.remove(prevName);
+        if (prevMap != null) adjacencyList.put(newName, prevMap);
+        for (Map.Entry<String, Map<String, Integer>> entry : adjacencyList.entrySet()) {
+            System.out.println(entry);
+            try {
+                int prevValue = entry.getValue().remove(prevName);
+                System.out.println("Print prevValue: " + prevValue);
+                if (prevValue != 0) entry.getValue().put(newName, prevValue);
+            }
+            catch (NullPointerException e) {
+            }
+        }
+        return newName;
+    }
+    public int updateEdge(GraphEdge edge, int newWeight) {
+        String source = edge.getSource().getName().get();
+        String target = edge.getTarget().getName().get();
+        adjacencyList.get(source).put(target, newWeight);
+        adjacencyList.get(target).put(source, newWeight);
+        return newWeight;
     }
     public void updateDFS() {
 
     }
     public void printLists() {
-        System.out.println(adjacencyList.toString());
-    }
-
-    public ArrayList<GraphNodeData> getNodes() {
-        return this.nodes;
+       for (Map.Entry<String, Map<String, Integer>> entry : adjacencyList.entrySet()) {
+           System.out.print(entry.getKey() + " => ");
+           for (Map.Entry<String, Integer> entry2 : entry.getValue().entrySet()) {
+               System.out.print("{" +entry2.getValue() + " : " + entry2.getKey() + "} ");
+           }
+           System.out.println("");
+       }
+        System.out.println("");
     }
 }
