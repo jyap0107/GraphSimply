@@ -8,6 +8,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class GraphSimplyViewModel {
@@ -25,9 +26,13 @@ public class GraphSimplyViewModel {
     //Properties
     private StringProperty dfsTextProperty = new SimpleStringProperty("");
     private StringProperty bfsTextProperty = new SimpleStringProperty("");
+    private String[] defaultNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     //TODO
-    // Move the name thing to this class, have graphnode be created, then assignn ame afterwards.
+    /* After graph node is created,
+
+    */
 
     public GraphSimplyViewModel() {
         this.model = new GraphSimplyModel();
@@ -69,10 +74,10 @@ public class GraphSimplyViewModel {
         connections.get(edge.getTarget()).add(edge);
         weights.put(edge, new SimpleIntegerProperty(edge.getWeight().get()));
         model.createNewEdge(edge);
+
     }
     public void setCursor(String cursor) {
         this.cursor = cursor;
-        System.out.println(this.cursor);
     }
     public String getCursor() {
         return cursor;
@@ -85,7 +90,14 @@ public class GraphSimplyViewModel {
     }
     public void removeNode(GraphNode node) {
         connections.remove(node);
+        nodeNames.remove(node.getName().get());
         model.removeNodeFromList(node.getName().get());
+        //Let default name work again
+        String name = node.getName().get();
+        if (name.length() == 1) {
+            int ascii = (int) name.charAt(0);
+            defaultNames[ascii - 65] = name;
+        }
     }
     public StringProperty getDfsTextProperty() {
         return dfsTextProperty;
@@ -114,25 +126,38 @@ public class GraphSimplyViewModel {
     public ArrayList<GraphEdge> getIncidentEdges(GraphNode node) {
         return connections.get(node);
     }
-    public void removeEdgeFromNode(GraphNode node, GraphEdge edge) {
-        connections.get(node).remove(edge);
+    public void removeEdgesFromNode(GraphNode node, ArrayList<GraphEdge> edges) {
+        for (Iterator<GraphEdge> iterator = edges.iterator(); iterator.hasNext();) {
+            GraphEdge edge = iterator.next();
+            connections.get(node).remove(edge);
+            weights.remove(edge);
+        }
     }
     public void removeEdge(GraphEdge edge) {
         connections.get(edge.getSource()).remove(edge);
         connections.get(edge.getTarget()).remove(edge);
+        weights.remove(edge);
         model.removeEdgeFromList(edge);
     }
 
     public ArrayList<StringProperty> getNodeNames() {
         return nodeNames;
     }
-    public void updateName(GraphNode node, String newName) {
-        for (String name : GraphNode.names) {
-            if (newName.equals(name)) {
-                System.out.println("DUPLICATE NAME");
-                return;
+    public boolean updateName(GraphNode node, String newName) {
+        // Check if available
+        if (nodeNames.contains(newName)) {
+            return false;
+        }
+        boolean oneLetterName = false;
+        if (newName.length() == 1) {
+            oneLetterName = true;
+            int ascii = (int) newName.charAt(0);
+            if (defaultNames[ascii - 65].equals("/")) {
+                return false;
             }
         }
+        String oldName = node.getName().get();
+        //Find within nodeNames what to set.
         int index = -1;
         for (int i = 0; i < nodeNames.size(); i++) {
             if (nodeNames.get(i).getValue().equals(node.getName().getValue())) {
@@ -141,9 +166,33 @@ public class GraphSimplyViewModel {
             }
         }
         nodeNames.get(index).setValue(model.updateName(node, newName));
+        //Reset defaultNames
+        if (oneLetterName) {
+            int newAscii = newName.charAt(0);
+            int oldAscii = oldName.charAt(0);
+            // The old name in defaultNames is reassigned, the newName is set to "/"
+            defaultNames[newAscii - 65] = "/";
+            defaultNames[oldAscii - 65] = Character.toString((char)oldAscii);
+        }
+        return true;
     }
     public void updateWeight(GraphEdge edge, int newWeight) {
         weights.get(edge).set(model.updateEdge(edge, newWeight));
     }
     public Map<GraphEdge, IntegerProperty> getWeights() { return weights; }
+    public String[] getDefaultNames() {
+        return defaultNames;
+    }
+    public String assignName() {
+//        System.out.println(Arrays.toString(defaultNames));
+        for (int i = 0; i < defaultNames.length; i++) {
+            if (!defaultNames[i].equals("/")) {
+                String temp = defaultNames[i];
+                defaultNames[i] = "/";
+                return temp;
+            }
+        }
+        // Should never be reached.
+        return "Error";
+    }
 }

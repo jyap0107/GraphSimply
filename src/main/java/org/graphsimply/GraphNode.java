@@ -4,10 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
@@ -26,9 +23,8 @@ public class GraphNode extends Circle {
     private Label label;
     private GraphSimplyViewModel viewModel;
     private GraphSimplyController view;
-    private static int defaultName = 65;
-    public static String[] names = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
-            "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+    private ArrayList<GraphEdge> incidentEdges = new ArrayList<>();
+
     //TODO
     // Deletion moves back to last letter.
 
@@ -38,12 +34,13 @@ public class GraphNode extends Circle {
                      GraphSimplyViewModel viewModel,
                      GraphSimplyController view) {
         super(x, y, 30);
-        String name = Character.toString((char) defaultName++);
         this.setFill(Color.WHITE);
         this.setStroke(Color.BLACK);
         this.setStrokeWidth(1.5);
         this.viewModel = viewModel;
         this.view = view;
+        this.name = new SimpleStringProperty(viewModel.assignName());
+        String name = this.name.get();
         Label nameLabel = new Label(name);
         //region Setting name size and binding
         nameLabel.setMaxWidth(50);
@@ -60,16 +57,20 @@ public class GraphNode extends Circle {
         ContextMenu menu = new ContextMenu();
         MenuItem rename = new MenuItem("Rename");
         Pane pane = this.view.getPane();
-        rename.setOnAction(e -> {
-            System.out.println("Rename");
-        });
+
         rename.setOnAction(e -> {
             TextInputDialog renameInput = new TextInputDialog(this.name.get());
             renameInput.setHeaderText("Enter new node name: ");
             renameInput.setGraphic(null);
             renameInput.showAndWait();
             String newName = renameInput.getEditor().getText();
-            viewModel.updateName(this, newName);
+            boolean updated = viewModel.updateName(this, newName);
+            if (!updated) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Error");
+                alert.setContentText("Name already taken: " + newName);
+                alert.showAndWait();
+            }
 //            this.name = new SimpleStringProperty(newName);
 //            this.label.setText(newName);
 
@@ -79,13 +80,22 @@ public class GraphNode extends Circle {
             // Remove from display
             pane.getChildren().removeAll(this, this.label);
 
+
+            // Remove from VM
+            ArrayList<GraphEdge> incidentEdges = viewModel.getIncidentEdges(this);
+            if (incidentEdges != null) {
+                System.out.println("There are incident edges");
+                System.out.println(viewModel.getIncidentEdges(this).toString());
+                ArrayList<Label> edgeLabels = new ArrayList<>();
+                for (GraphEdge edge : incidentEdges) {
+                    edgeLabels.add(edge.getLabel());
+                }
+                pane.getChildren().removeAll(incidentEdges);
+                pane.getChildren().removeAll(edgeLabels);
+                viewModel.removeEdgesFromNode(this, incidentEdges);
+            }
             // Remove from model
             viewModel.removeNode(this);
-            // Remove from VM
-            for (GraphEdge edge : viewModel.getIncidentEdges(this)) {
-                viewModel.removeEdgeFromNode(this, edge);
-                pane.getChildren().remove(edge);
-            }
         });
         this.addEventHandler(ContextMenuEvent.CONTEXT_MENU_REQUESTED, event -> {
             menu.show(pane, event.getScreenX(), event.getScreenY());
@@ -135,6 +145,7 @@ public class GraphNode extends Circle {
                     // Already adds to the model via VM
                     GraphEdge edge = new GraphEdge(source, this, viewModel, view);
                     view.getPane().getChildren().add(0, edge);
+                    this.incidentEdges.add(edge);
                 }
                 // Regardless of if edge is made, reset effect and source.
                 source.setEffect(null);
@@ -167,16 +178,4 @@ public class GraphNode extends Circle {
     public StringProperty getName() {
         return name;
     }
-    public String assignName() {
-        for (int i = 0; i < names.length; i++) {
-            if (!names[i].equals("/")) {
-                String temp = names[i];
-                names[i] = "/";
-                return temp;
-            }
-        }
-        return "";
-    }
-
-
 }

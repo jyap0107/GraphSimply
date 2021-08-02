@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4daf8e45-23ea-451a-a626-d57a7d1b171b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphEdge.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphEdgeData.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphNode.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphNodeData.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyViewModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyViewModel.java" afterDir="false" />

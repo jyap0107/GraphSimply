@@ -9,6 +9,7 @@ public class GraphSimplyModel {
 
 
     public void createNewNode(GraphNode node, String name) {
+        System.out.println("New name: " + name);
         adjacencyList.put(name, new HashMap<String, Integer>());
         printLists();
     }
@@ -32,6 +33,7 @@ public class GraphSimplyModel {
         adjacencyList.get(target).remove(source);
     }
     public String updateName(GraphNode node, String newName) {
+        System.out.println("Updated name: " + newName);
         String prevName = node.getName().get();
         Map prevMap = adjacencyList.remove(prevName);
         if (prevMap != null) adjacencyList.put(newName, prevMap);

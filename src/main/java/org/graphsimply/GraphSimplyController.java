@@ -3,6 +3,7 @@ package org.graphsimply;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -62,6 +63,13 @@ public class GraphSimplyController implements Initializable {
     }
     public void createNode(MouseEvent e) {
         if (viewModel.getCursor().equals("node") && e.getButton() == MouseButton.PRIMARY) {
+            if (viewModel.getNodeNames().size() >= 26) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Error");
+                alert.setContentText("Max node count: 26");
+                alert.showAndWait();
+                return;
+            }
             GraphNode node = new GraphNode(e.getX(), e.getY(),
                     this.viewModel, this);
             centerPane.getChildren().addAll(node, node.getLabel());

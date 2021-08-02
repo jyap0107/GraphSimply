@@ -137,8 +137,8 @@ public class GraphEdge extends Line {
             weightInput.showAndWait();
             int newWeight = Integer.parseInt(weightInput.getEditor().getText());
             viewModel.updateWeight(this, newWeight);
-            System.out.println(this.weight.get());
-            System.out.println(viewModel.getWeights().get(this).get());
+//            System.out.println(this.weight.get());
+//            System.out.println(viewModel.getWeights().get(this).get());
         });
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
@@ -172,5 +172,8 @@ public class GraphEdge extends Line {
 
     public IntegerProperty getWeight() {
         return weight;
+    }
+    public Label getLabel() {
+        return this.label;
     }
 }
