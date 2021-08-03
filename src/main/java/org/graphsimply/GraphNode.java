@@ -3,6 +3,7 @@ package org.graphsimply;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.effect.Glow;
@@ -12,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
 
@@ -23,7 +25,6 @@ public class GraphNode extends Circle {
     private Label label;
     private GraphSimplyViewModel viewModel;
     private GraphSimplyController view;
-    private ArrayList<GraphEdge> incidentEdges = new ArrayList<>();
 
     //TODO
     // Deletion moves back to last letter.
@@ -84,8 +85,6 @@ public class GraphNode extends Circle {
             // Remove from VM
             ArrayList<GraphEdge> incidentEdges = viewModel.getIncidentEdges(this);
             if (incidentEdges != null) {
-                System.out.println("There are incident edges");
-                System.out.println(viewModel.getIncidentEdges(this).toString());
                 ArrayList<Label> edgeLabels = new ArrayList<>();
                 for (GraphEdge edge : incidentEdges) {
                     edgeLabels.add(edge.getLabel());
@@ -119,9 +118,38 @@ public class GraphNode extends Circle {
         yDrag = this.getCenterY() - mouseEvent.getY();
     };
     private final EventHandler<MouseEvent> onDrag = (mouseEvent) -> {
+
+        double priorCenterX = this.getCenterX();
+        double priorCenterY = this.getCenterY();
         this.setCenterX(mouseEvent.getX() + xDrag);
         this.setCenterY(mouseEvent.getY() + yDrag);
+
+        for (GraphNode node : viewModel.getNodes()) {
+            if (!this.equals(node)) {
+                Shape intersect = Shape.intersect(node, this);
+                if (intersect.getLayoutBounds().getWidth() > 0) {
+                    Point2D cx = new Point2D(priorCenterX, priorCenterY);
+                    Point2D px = new Point2D(node.getCenterX(), node.getCenterY());
+                    double d = cx.distance(px);
+                    if (d > getRadius() + node.getRadius()) {
+                        cx = pointAtDistance(cx, px, d - getRadius() - node.getRadius());
+                    }
+                    this.setCenterX(cx.getX());
+                    this.setCenterY(cx.getY());
+                    return;
+
+                }
+            }
+        }
     };
+    // Helper for drag.
+    private Point2D pointAtDistance(Point2D p1, Point2D p2, double distance) {
+        double lineLength = p1.distance(p2);
+        double t = distance / lineLength;
+        double dx = ((1 - t) * p1.getX()) + (t * p2.getX());
+        double dy = ((1 - t) * p1.getY()) + (t * p2.getY());
+        return new Point2D(dx, dy);
+    }
     //Edge creation handlers
     private final EventHandler<MouseEvent> onClick = (mouseEvent) -> {
         if (mouseEvent.getButton() != MouseButton.PRIMARY) return;
@@ -145,7 +173,6 @@ public class GraphNode extends Circle {
                     // Already adds to the model via VM
                     GraphEdge edge = new GraphEdge(source, this, viewModel, view);
                     view.getPane().getChildren().add(0, edge);
-                    this.incidentEdges.add(edge);
                 }
                 // Regardless of if edge is made, reset effect and source.
                 source.setEffect(null);
@@ -153,7 +180,14 @@ public class GraphNode extends Circle {
             }
         }
         if (viewModel.getCursor().equals("dfs")) {
-            viewModel.setDfsSource(this);
+            System.out.println("Second click detected.");
+            viewModel.updateDFS(this);
+            mouseEvent.consume();
+            // Reset back to previous
+            viewModel.setCursor(viewModel.getPrevCursor());
+            viewModel.toggleDrag();
+            viewModel.toggleClick();
+            view.removePrompt();
         }
     };
 
@@ -168,10 +202,10 @@ public class GraphNode extends Circle {
         this.removeEventHandler(MouseEvent.MOUSE_PRESSED, onPress);
         this.removeEventHandler(MouseEvent.MOUSE_DRAGGED, onDrag);
     }
-    public void enableEdgeCreation() {
+    public void enableClick() {
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, onClick);
     }
-    public void disableEdgeCreation() {
+    public void disableClick() {
         this.removeEventHandler(MouseEvent.MOUSE_CLICKED, onClick);
     }
 

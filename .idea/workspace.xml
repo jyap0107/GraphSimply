@@ -3,14 +3,17 @@
   <component name="ChangeListManager">
     <list default="true" id="4daf8e45-23ea-451a-a626-d57a7d1b171b" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphEdge.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphEdge.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphNode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphNode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyViewModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/graphsimply/GraphSimplyViewModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/org/graphsimply/GraphSimplyFXML.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/org/graphsimply/GraphSimplyFXML.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphEdge.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphEdge.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphNode.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphNode.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyFXML.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyFXML.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyModel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyModel.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyViewModel.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/org/graphsimply/GraphSimplyViewModel.class" afterDir="false" />
     </list>

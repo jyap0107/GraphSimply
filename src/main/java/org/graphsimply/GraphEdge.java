@@ -22,7 +22,7 @@ public class GraphEdge extends Line {
     private GraphNode target;
     private GraphSimplyController view;
     private GraphSimplyViewModel viewModel;
-    private IntegerProperty weight = new SimpleIntegerProperty(100);
+    private IntegerProperty weight = new SimpleIntegerProperty(0);
     private Label label;
     private IntegerProperty index;
 
@@ -125,21 +125,26 @@ public class GraphEdge extends Line {
         //endregion
         //region label rightclick
         ContextMenu menu = new ContextMenu();
-        MenuItem changeWeight = new MenuItem("Change weight");
         Pane pane = this.view.getPane();
-        changeWeight.setOnAction(e -> {
-            System.out.println("Rename");
-        });
-        changeWeight.setOnAction(e -> {
-            TextInputDialog weightInput = new TextInputDialog(this.weight.get() +"");
-            weightInput.setHeaderText("Enter new weight: ");
-            weightInput.setGraphic(null);
-            weightInput.showAndWait();
-            int newWeight = Integer.parseInt(weightInput.getEditor().getText());
-            viewModel.updateWeight(this, newWeight);
+        if (viewModel.getDirected()) {
+            MenuItem changeWeight = new MenuItem("Change weight");
+            changeWeight.setOnAction(e -> {
+                TextInputDialog weightInput = new TextInputDialog(this.weight.get() + "");
+                weightInput.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+                    if (!newValue.matches("\\d*")) {
+                        weightInput.getEditor().setText(newValue.replaceAll("[^\\d]", ""));
+                    }
+                });
+                weightInput.setHeaderText("Enter new weight: ");
+                weightInput.setGraphic(null);
+                weightInput.showAndWait();
+                String newWeight = weightInput.getEditor().getText();
+                viewModel.updateWeight(this, newWeight);
 //            System.out.println(this.weight.get());
 //            System.out.println(viewModel.getWeights().get(this).get());
-        });
+            });
+            menu.getItems().add(changeWeight);
+        }
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
             // Remove from display
@@ -154,7 +159,7 @@ public class GraphEdge extends Line {
         pane.addEventHandler(MouseEvent.MOUSE_PRESSED, event -> {
             menu.hide();
         });
-        menu.getItems().addAll(changeWeight, delete);
+        menu.getItems().add(delete);
         //endregion
         this.viewModel.createNewEdge(this);
         System.out.println(viewModel.getWeights().get(this));

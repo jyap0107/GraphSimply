@@ -3,10 +3,7 @@ package org.graphsimply;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -15,6 +12,7 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class GraphSimplyController implements Initializable {
@@ -30,9 +28,11 @@ public class GraphSimplyController implements Initializable {
     @FXML
     private Text dfsText, bfsText;
 
-    private float sample = 0;
+    @FXML
+    private ToggleButton selectButton, nodeButton, edgeButton;
 
     private GraphSimplyViewModel viewModel;
+    private Text prompt;
 
     public GraphSimplyController() {
     }
@@ -44,22 +44,42 @@ public class GraphSimplyController implements Initializable {
         bfsText.textProperty().bind(viewModel.getBfsTextProperty());
     }
     public void toggleDirected() {
-        viewModel.toggleDirected();
+
+        Alert toggleConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
+        toggleConfirmation.setTitle("Direction Confirmation");
+        String text = viewModel.getDirected() ? "directed" : "undirected";
+        toggleConfirmation.setHeaderText("Are you sure you want to change to a " + text + " graph?" );
+        toggleConfirmation.setContentText("Your previous graph will be cleared.");
+        Optional<ButtonType> result = toggleConfirmation.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            viewModel.toggleDirected();
+            centerPane.getChildren().clear();
+            selectButton.setSelected(false);
+            nodeButton.setSelected(false);
+            edgeButton.setSelected(false);
+
+        }
+        if (viewModel.getDirected()) {
+            directedButton.setSelected(true);
+        }
+        else {
+            undirectedButton.setSelected(true);
+        }
     }
     public void setCursorToSelect() {
         viewModel.setCursor("select");
         viewModel.toggleDrag();
-        viewModel.toggleEdgeCreation();
+        viewModel.toggleClick();
     }
     public void setCursorToNode() {
         viewModel.setCursor("node");
         viewModel.toggleDrag();
-        viewModel.toggleEdgeCreation();
+        viewModel.toggleClick();
     }
     public void setCursorToEdge() {
         viewModel.setCursor("edge");
         viewModel.toggleDrag();
-        viewModel.toggleEdgeCreation();
+        viewModel.toggleClick();
     }
     public void createNode(MouseEvent e) {
         if (viewModel.getCursor().equals("node") && e.getButton() == MouseButton.PRIMARY) {
@@ -80,12 +100,17 @@ public class GraphSimplyController implements Initializable {
     }
 
     public void updateDFS() {
-        Text dfsPrompt = new Text("Select the Node you want to start the search from");
-        centerPane.getChildren().add(dfsPrompt);
-        dfsPrompt.layoutXProperty().bind(centerPane.widthProperty().divide(2).subtract(131.8886719));
-        dfsPrompt.setLayoutY(25);
+        prompt = new Text("Select the Node you want to start the search from");
+        centerPane.getChildren().add(prompt);
+        prompt.layoutXProperty().bind(centerPane.widthProperty().divide(2).subtract(131.8886719));
+        prompt.setLayoutY(25);
+        viewModel.setPrevCursor(viewModel.getCursor());
         viewModel.setCursor("dfs");
-
+        viewModel.toggleDrag();
+        viewModel.toggleClick();
+    }
+    public void removePrompt() {
+        centerPane.getChildren().remove(prompt);
     }
 
     @Override

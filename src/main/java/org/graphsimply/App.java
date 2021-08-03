@@ -27,4 +27,14 @@ public class App extends Application {
         stage.setScene(new Scene(root, 500, 500));
         stage.show();
     }
+    /*TODO
+    Confirmation for renaming
+    Fixing DFS if it can't work, binding.
+    Other algos + their binding.
+    Disable buttons if directed.
+
+    IF DIRECTED
+    - Fix algos, implement them accordingly.
+    - Add arrows? Add self loops and two way loops?
+    */
 }

@@ -13,11 +13,11 @@ import java.util.*;
 
 public class GraphSimplyViewModel {
 
-    private boolean directed = true;
+    private boolean directed = false;
     private String cursor = "";
+    private String prevCursor = "";
     private GraphSimplyModel model;
     private GraphNode source;
-    private GraphNode dfsSource;
     // For binding
     private ArrayList<StringProperty> nodeNames = new ArrayList<>();
     private Map<GraphEdge, IntegerProperty> weights = new HashMap<>();
@@ -42,6 +42,8 @@ public class GraphSimplyViewModel {
     }
     public void toggleDirected() {
         directed = !directed;
+        clearState();
+        model.clearModel();
     }
 
     public void toggleDrag() {
@@ -56,15 +58,15 @@ public class GraphSimplyViewModel {
             }
         }
     }
-    public void toggleEdgeCreation() {
-        if (cursor.equals("edge")) {
+    public void toggleClick() {
+        if (cursor.equals("edge") || cursor.equals("dfs")) {
             for (GraphNode node : connections.keySet()) {
-                node.enableEdgeCreation();
+                node.enableClick();
             }
         }
         else {
             for (GraphNode node : connections.keySet()) {
-                node.disableEdgeCreation();
+                node.disableClick();
             }
         }
     }
@@ -105,9 +107,6 @@ public class GraphSimplyViewModel {
     public StringProperty getBfsTextProperty() {
         return bfsTextProperty;
     }
-    public void setDfsSource(GraphNode dfsSource) {
-        this.dfsSource = dfsSource;
-    }
     public int createNewNode(GraphNode node, String name) {
         connections.put(node, new ArrayList<>());
         model.createNewNode(node, name);
@@ -129,9 +128,9 @@ public class GraphSimplyViewModel {
     public void removeEdgesFromNode(GraphNode node, ArrayList<GraphEdge> edges) {
         for (Iterator<GraphEdge> iterator = edges.iterator(); iterator.hasNext();) {
             GraphEdge edge = iterator.next();
-            connections.get(node).remove(edge);
             weights.remove(edge);
         }
+        connections.get(node).removeAll(edges);
     }
     public void removeEdge(GraphEdge edge) {
         connections.get(edge.getSource()).remove(edge);
@@ -176,8 +175,9 @@ public class GraphSimplyViewModel {
         }
         return true;
     }
-    public void updateWeight(GraphEdge edge, int newWeight) {
-        weights.get(edge).set(model.updateEdge(edge, newWeight));
+    public void updateWeight(GraphEdge edge, String newWeight) {
+        if (newWeight.equals("")) return;
+        weights.get(edge).set(model.updateEdge(edge, Integer.parseInt(newWeight)));
     }
     public Map<GraphEdge, IntegerProperty> getWeights() { return weights; }
     public String[] getDefaultNames() {
@@ -194,5 +194,37 @@ public class GraphSimplyViewModel {
         }
         // Should never be reached.
         return "Error";
+    }
+    public ArrayList<GraphNode> getNodes() {
+        return new ArrayList<GraphNode>(connections.keySet());
+    }
+
+    public void setPrevCursor(String prevCursor) {
+        this.prevCursor = prevCursor;
+    }
+
+    public String getPrevCursor() {
+        return prevCursor;
+    }
+    public void updateDFS(GraphNode source) {
+        model.updateDFS(source);
+    }
+    public boolean getDirected() {
+        return directed;
+    }
+    public void clearState() {
+        cursor = "";
+        prevCursor = "";
+        source = null;
+        // For binding
+        nodeNames = new ArrayList<>();
+        weights = new HashMap<>();
+        // Current GUI nodes.
+        connections = new HashMap<>();
+        //Properties
+        new SimpleStringProperty("");
+        new SimpleStringProperty("");
+        defaultNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
+                "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
     }
 }
