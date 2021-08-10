@@ -29,9 +29,10 @@ public class App extends Application {
     }
     /*TODO
     Confirmation for renaming
-    Fixing DFS if it can't work, binding.
     Other algos + their binding.
     Disable buttons if directed.
+    Reset color (allow coloring)?
+    Bipartite on the left
 
     IF DIRECTED
     - Fix algos, implement them accordingly.

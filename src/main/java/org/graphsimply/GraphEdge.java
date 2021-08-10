@@ -147,7 +147,12 @@ public class GraphEdge extends Line {
         }
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
+            view.removePrompt();
+            for (GraphNode node : viewModel.getConnections().keySet()) {
+                node.setFill(Color.WHITE);
+            }
             // Remove from display
+
             pane.getChildren().removeAll(this, this.label);
             // Remove from model
             viewModel.removeEdge(this);

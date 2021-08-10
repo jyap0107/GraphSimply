@@ -2,10 +2,13 @@ package org.graphsimply;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
@@ -61,6 +64,12 @@ public class GraphNode extends Circle {
 
         rename.setOnAction(e -> {
             TextInputDialog renameInput = new TextInputDialog(this.name.get());
+            renameInput.getEditor().textProperty().addListener((ov, oldValue, newValue) -> {
+                if (renameInput.getEditor().getText().length() > 5) {
+                    String s = renameInput.getEditor().getText().substring(0, 5);
+                    renameInput.getEditor().setText(s);
+                }
+            });
             renameInput.setHeaderText("Enter new node name: ");
             renameInput.setGraphic(null);
             renameInput.showAndWait();
@@ -79,6 +88,10 @@ public class GraphNode extends Circle {
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
             // Remove from display
+            view.removePrompt();
+            for (GraphNode node : viewModel.getConnections().keySet()) {
+                node.setFill(Color.WHITE);
+            }
             pane.getChildren().removeAll(this, this.label);
 
 
@@ -158,12 +171,15 @@ public class GraphNode extends Circle {
             // Set source and target accordingly
             if (source == null) {
                 viewModel.setSource(this);
-                Glow glow = new Glow();
-                glow.setLevel(1);
-                this.setEffect(glow);
+                DropShadow borderGlow = new DropShadow();
+                borderGlow.setOffsetY(0f);
+                borderGlow.setOffsetX(0f);
+                borderGlow.setColor(Color.BLACK);
+                borderGlow.setWidth(10);
+                borderGlow.setHeight(10);
+                this.setEffect(borderGlow);
             }
             else {
-                System.out.println("Made");
                 // Disallow duplicate edges.
                 boolean canMakeEdge = true;
                 for (GraphEdge edge : viewModel.getEdges()) {
@@ -180,10 +196,25 @@ public class GraphNode extends Circle {
             }
         }
         if (viewModel.getCursor().equals("dfs")) {
-            System.out.println("Second click detected.");
-            viewModel.updateDFS(this);
+            viewModel.getDFS(this);
             mouseEvent.consume();
             // Reset back to previous
+            viewModel.setCursor(viewModel.getPrevCursor());
+            viewModel.toggleDrag();
+            viewModel.toggleClick();
+            view.removePrompt();
+        }
+        if (viewModel.getCursor().equals("bfs")) {
+            viewModel.getBFS(this);
+            mouseEvent.consume();
+            // Reset back to previous
+            viewModel.setCursor(viewModel.getPrevCursor());
+            viewModel.toggleDrag();
+            viewModel.toggleClick();
+            view.removePrompt();
+        }
+        if (viewModel.getCursor().equals("shortestPaths")) {
+            viewModel.getShortestPaths(this);
             viewModel.setCursor(viewModel.getPrevCursor());
             viewModel.toggleDrag();
             viewModel.toggleClick();

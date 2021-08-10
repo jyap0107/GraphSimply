@@ -7,6 +7,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.paint.Color;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -18,6 +19,7 @@ public class GraphSimplyViewModel {
     private String prevCursor = "";
     private GraphSimplyModel model;
     private GraphNode source;
+    private boolean isColored = false;
     // For binding
     private ArrayList<StringProperty> nodeNames = new ArrayList<>();
     private Map<GraphEdge, IntegerProperty> weights = new HashMap<>();
@@ -26,6 +28,11 @@ public class GraphSimplyViewModel {
     //Properties
     private StringProperty dfsTextProperty = new SimpleStringProperty("");
     private StringProperty bfsTextProperty = new SimpleStringProperty("");
+    private StringProperty dfsLabelProperty = new SimpleStringProperty("DFS from Node");
+    private StringProperty bfsLabelProperty = new SimpleStringProperty("BFS from Node");
+    private StringProperty eulerianPathTextProperty = new SimpleStringProperty("");
+    private StringProperty shortestPathsTextProperty = new SimpleStringProperty("");
+    private StringProperty shortestPathsLabelProperty = new SimpleStringProperty("Shortest paths from Node");
     private String[] defaultNames = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
             "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
@@ -59,7 +66,7 @@ public class GraphSimplyViewModel {
         }
     }
     public void toggleClick() {
-        if (cursor.equals("edge") || cursor.equals("dfs")) {
+        if (cursor.equals("edge") || cursor.equals("dfs") || cursor.equals("bfs") || cursor.equals("shortestPaths")) {
             for (GraphNode node : connections.keySet()) {
                 node.enableClick();
             }
@@ -206,8 +213,20 @@ public class GraphSimplyViewModel {
     public String getPrevCursor() {
         return prevCursor;
     }
-    public void updateDFS(GraphNode source) {
-        model.updateDFS(source);
+    public void getDFS(GraphNode source) {
+        dfsTextProperty.set(model.updateDFS(source.getName().get()));
+        dfsLabelProperty.set("DFS from Node " + source.getName().get());
+    }
+    public void getBFS(GraphNode source) {
+        bfsTextProperty.set(model.updateBFS(source.getName().get()));
+        bfsLabelProperty.set("BFS from Node " + source.getName().get());
+    }
+    public void getEulerianPath() {
+        eulerianPathTextProperty.set(model.updateEulerianPath());
+    }
+    public void getShortestPaths(GraphNode source) {
+        shortestPathsTextProperty.set(model.updateShortestPaths(source.getName().get()));
+        shortestPathsLabelProperty.set("Shortest paths from Node " + source.getName().get());
     }
     public boolean getDirected() {
         return directed;
@@ -226,5 +245,52 @@ public class GraphSimplyViewModel {
         new SimpleStringProperty("");
         defaultNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
                 "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+    }
+    //Move to view?
+    public boolean colorGraph() {
+        if (!isColored) {
+            Map<String, Boolean> colorings = model.checkBipartite();
+            System.out.println(colorings.entrySet().toString());
+            for (GraphNode node : connections.keySet()) {
+                if (colorings.get(node.getName().get())) {
+                    node.setFill(Color.LIGHTBLUE);
+                } else {
+                    node.setFill(Color.LIGHTPINK);
+                }
+            }
+            isColored = true;
+        }
+        else {
+            for (GraphNode node : connections.keySet()) {
+                node.setFill(Color.WHITE);
+            }
+            isColored = false;
+        }
+        return model.getBipartite();
+    }
+    public StringProperty getDfsLabelProperty() {
+        return dfsLabelProperty;
+    }
+    public StringProperty getBfsLabelProperty() {
+        return bfsLabelProperty;
+    }
+    public int getNumNodes() {
+        return model.getNumNodes();
+    }
+    public boolean getIsColored() {
+        return isColored;
+    }
+    public StringProperty getEulerianPathText() {
+        return eulerianPathTextProperty;
+    }
+    public StringProperty getShortestPathsTextProperty() {
+        return shortestPathsTextProperty;
+    }
+    public StringProperty getShortestPathsLabelProperty() {
+        return shortestPathsLabelProperty;
+    }
+
+    public Map<GraphNode, ArrayList<GraphEdge>> getConnections() {
+        return connections;
     }
 }
