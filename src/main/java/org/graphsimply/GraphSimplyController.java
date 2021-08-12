@@ -8,6 +8,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 
@@ -54,15 +55,20 @@ public class GraphSimplyController implements Initializable {
         shortestPathsLabel.textProperty().bindBidirectional(viewModel.getShortestPathsLabelProperty());
     }
     public void toggleDirected() {
-
         Alert toggleConfirmation = new Alert(Alert.AlertType.CONFIRMATION);
         toggleConfirmation.setTitle("Direction Confirmation");
-        String text = viewModel.getDirected() ? "directed" : "undirected";
-        toggleConfirmation.setHeaderText("Are you sure you want to change to a " + text + " graph?" );
+        boolean isDirected = viewModel.getDirected();
+        if (isDirected) {
+            toggleConfirmation.setHeaderText("Are you sure you want to switch to an undirected graph?");
+        }
+        else {
+            toggleConfirmation.setHeaderText("Are you sure you want to switch to a directed graph?");
+        }
         toggleConfirmation.setContentText("Your previous graph will be cleared.");
         Optional<ButtonType> result = toggleConfirmation.showAndWait();
         if (result.get() == ButtonType.OK) {
-            viewModel.toggleDirected();
+            init(new GraphSimplyViewModel());
+            viewModel.setDirected(!isDirected);
             centerPane.getChildren().clear();
             selectButton.setSelected(false);
             nodeButton.setSelected(false);
@@ -169,6 +175,33 @@ public class GraphSimplyController implements Initializable {
         viewModel.setCursor("shortestPaths");
         viewModel.toggleDrag();
         viewModel.toggleClick();
+    }
+    public void showAbout() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("About");
+        alert.setHeaderText("About GraphSimply");
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.setContentText("GraphSimply lets you easily simulate graphs and graphing algorithms with an easy to use" +
+                " UI.");
+        alert.showAndWait();
+    }
+    public void showInstructions() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Instructions");
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.setHeaderText(
+                "Drawing Nodes: Click \"Node\" to enable node creation by clicking the diagram space." +
+                "\nDrawing Edges: Click \"Edge\" to enable edge creation by clicking two nodes. " +
+                "\nMoving Nodes: Click \"Select\" to enable node movement." +
+                "\nRemoving Nodes: Right click a node to enable removal." +
+                "\nRemoving Edges: Right click an edge to enable removal." +
+                "\nRenaming a node: Right click a node to enable renaming." +
+                "\nChanging an edge weight: Right click a node to change edge weight." +
+                "\nUpdating graph information: Click a button under \"Diagram Actions\" to update the diagram " +
+                "accordingly." +
+                "\nTo simulate an unweighted graph, keep all node weights as 0.");
+        alert.showAndWait();
+
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

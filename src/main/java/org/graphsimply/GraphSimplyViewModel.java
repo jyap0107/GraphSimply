@@ -47,11 +47,6 @@ public class GraphSimplyViewModel {
     public GraphSimplyViewModel(GraphSimplyModel model) {
         this.model = model;
     }
-    public void toggleDirected() {
-        directed = !directed;
-        clearState();
-        model.clearModel();
-    }
 
     public void toggleDrag() {
         if (cursor.equals("select")) {
@@ -292,5 +287,9 @@ public class GraphSimplyViewModel {
 
     public Map<GraphNode, ArrayList<GraphEdge>> getConnections() {
         return connections;
+    }
+    public void setDirected(boolean flag) {
+        directed = flag;
+        model.setDirected(flag);
     }
 }

@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 public class GraphSimplyModel {
 
+    private boolean directed;
     private Map<String, Map<String, Integer>> adjacencyList = new HashMap<>();
     private String dfsResult = "";
     private String bfsResult = "";
@@ -34,7 +35,8 @@ public class GraphSimplyModel {
         GraphNode source = edge.getSource();
         GraphNode target = edge.getTarget();
         adjacencyList.get(source.getName().get()).put(target.getName().get(), edge.getWeight().get());
-        adjacencyList.get(target.getName().get()).put(source.getName().get(), edge.getWeight().get());
+        // Only add target to source if undirected.
+        if (!directed) adjacencyList.get(target.getName().get()).put(source.getName().get(), edge.getWeight().get());
         printLists();
     }
     public void removeEdgeFromList(GraphEdge edge) {
@@ -285,9 +287,6 @@ public class GraphSimplyModel {
             }
         }
         // Reconstruct the path
-//        System.out.println(vertices.toString());
-//        System.out.println(Arrays.toString(prev));
-//        System.out.println(Arrays.toString(dist));
         // Each iteration makes a new path.
 //        prev[vertices.indexOf(srcName)] = srcName;
         String[] pathStrings = new String[dist.length];
@@ -302,7 +301,7 @@ public class GraphSimplyModel {
                 res = " => " + temp + res;
                 temp = prev[vertices.indexOf(temp)];
             }
-            res = srcName + res;
+            res = srcName + res + " : " + dist[vertices.indexOf(vertex)];
             pathStrings[index] = res;
             index++;
         }
@@ -325,9 +324,12 @@ public class GraphSimplyModel {
         System.out.println("");
     }
     public void clearModel() {
-        adjacencyList = new HashMap<>();
+        adjacencyList.clear();
         dfsResult = "";
+        bfsResult = "";
         connected = false;
+        colorVisited.clear();
+        isBipartite = false;
     }
     public int getNumNodes() {
         return adjacencyList.size();
@@ -345,5 +347,8 @@ public class GraphSimplyModel {
             copy.put(new String(entry.getKey()), innerMap);
         }
         return copy;
+    }
+    public void setDirected(boolean flag) {
+        directed = flag;
     }
 }

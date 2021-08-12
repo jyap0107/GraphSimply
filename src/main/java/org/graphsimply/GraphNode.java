@@ -7,6 +7,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.effect.Glow;
@@ -129,6 +130,7 @@ public class GraphNode extends Circle {
         this.label.toFront();
         xDrag = this.getCenterX() - mouseEvent.getX();
         yDrag = this.getCenterY() - mouseEvent.getY();
+        setCursor(Cursor.CLOSED_HAND);
     };
     private final EventHandler<MouseEvent> onDrag = (mouseEvent) -> {
 
@@ -154,6 +156,12 @@ public class GraphNode extends Circle {
                 }
             }
         }
+    };
+    private final EventHandler<MouseEvent> cursorToHand = (mouseEvent) -> {
+        setCursor(Cursor.OPEN_HAND);
+    };
+    private final EventHandler<MouseEvent> cursorToDefault = (mouseEvent) -> {
+        setCursor(Cursor.DEFAULT);
     };
     // Helper for drag.
     private Point2D pointAtDistance(Point2D p1, Point2D p2, double distance) {
@@ -228,10 +236,15 @@ public class GraphNode extends Circle {
     public void enableDrag() {
         this.addEventHandler(MouseEvent.MOUSE_PRESSED, onPress);
         this.addEventHandler(MouseEvent.MOUSE_DRAGGED, onDrag);
+        this.addEventHandler(MouseEvent.MOUSE_ENTERED, cursorToHand);
+        this.addEventHandler(MouseEvent.MOUSE_EXITED, cursorToDefault);
+        this.addEventHandler(MouseEvent.MOUSE_RELEASED, cursorToHand);
     }
     public void disableDrag() {
         this.removeEventHandler(MouseEvent.MOUSE_PRESSED, onPress);
         this.removeEventHandler(MouseEvent.MOUSE_DRAGGED, onDrag);
+        this.removeEventHandler(MouseEvent.MOUSE_ENTERED, cursorToHand);
+        this.removeEventHandler(MouseEvent.MOUSE_EXITED, cursorToDefault);
     }
     public void enableClick() {
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, onClick);

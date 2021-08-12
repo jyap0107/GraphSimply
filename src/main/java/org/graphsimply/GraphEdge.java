@@ -4,6 +4,11 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -14,7 +19,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
+
+import java.util.List;
 
 
 public class GraphEdge extends Line {
@@ -25,6 +33,7 @@ public class GraphEdge extends Line {
     private IntegerProperty weight = new SimpleIntegerProperty(0);
     private Label label;
     private IntegerProperty index;
+    private Polygon arrowTip;
 
     public GraphEdge(GraphNode source, GraphNode target, GraphSimplyViewModel viewModel, GraphSimplyController view) {
         this.source = source;
@@ -126,25 +135,23 @@ public class GraphEdge extends Line {
         //region label rightclick
         ContextMenu menu = new ContextMenu();
         Pane pane = this.view.getPane();
-        if (viewModel.getDirected()) {
-            MenuItem changeWeight = new MenuItem("Change weight");
-            changeWeight.setOnAction(e -> {
-                TextInputDialog weightInput = new TextInputDialog(this.weight.get() + "");
-                weightInput.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue.matches("\\d*")) {
-                        weightInput.getEditor().setText(newValue.replaceAll("[^\\d]", ""));
-                    }
-                });
-                weightInput.setHeaderText("Enter new weight: ");
-                weightInput.setGraphic(null);
-                weightInput.showAndWait();
-                String newWeight = weightInput.getEditor().getText();
-                viewModel.updateWeight(this, newWeight);
+        MenuItem changeWeight = new MenuItem("Change weight");
+        changeWeight.setOnAction(e -> {
+            TextInputDialog weightInput = new TextInputDialog(this.weight.get() + "");
+            weightInput.getEditor().textProperty().addListener((observable, oldValue, newValue) -> {
+                if (!newValue.matches("\\d*")) {
+                    weightInput.getEditor().setText(newValue.replaceAll("[^\\d]", ""));
+                }
+            });
+            weightInput.setHeaderText("Enter new weight: ");
+            weightInput.setGraphic(null);
+            weightInput.showAndWait();
+            String newWeight = weightInput.getEditor().getText();
+            viewModel.updateWeight(this, newWeight);
 //            System.out.println(this.weight.get());
 //            System.out.println(viewModel.getWeights().get(this).get());
-            });
-            menu.getItems().add(changeWeight);
-        }
+        });
+        menu.getItems().add(changeWeight);
         MenuItem delete = new MenuItem("Delete");
         delete.setOnAction(e -> {
             view.removePrompt();
@@ -166,6 +173,28 @@ public class GraphEdge extends Line {
         });
         menu.getItems().add(delete);
         //endregion
+        if (viewModel.getDirected()) {
+//            //Creates an arrow tip, first pair is the tip, second pair is left of arrow (assuming tip is top)
+//            //Third pair is right of arrow
+//            Polygon arrowTip = new Polygon(this.getEndX(), this.getEndY(), 10 * Math.tan(180), -10,
+//                    -10 * Math.tan(180), -10);
+//            List.of(this.startXProperty(), this.startYProperty(), this.endXProperty(), this.endYProperty()).forEach(p -> p.addListener((obs, oldValue, newValue) -> {
+//                ObservableList<Double> points = arrowTip.getPoints();
+//                double slope = (this.getEndY() - this.getStartY())/(this.getEndX() - this.getStartX());
+//                points.set(0, this.getEndX());
+//                points.set(1, this.getEndY());
+//                points.set(2, 10 * (Math.cos(Math.atan(slope) + 30)) + this.getEndX());
+//                points.set(3, 10 * (Math.sin(Math.atan(slope) - 30)) + this.getEndY());
+//                points.set(4, 5 * (Math.cos(Math.atan(slope) - 30)) + this.getEndX());
+//                points.set(5, 5 * (Math.sin(Math.atan(slope) - 30)) - this.getEndY())  ;
+//                System.out.println(points.toString());
+//            }));
+//            arrowTip.setFill(Color.GREEN);
+
+
+            System.out.println(arrowTip.getPoints());
+            this.view.getPane().getChildren().add(arrowTip);
+        }
         this.viewModel.createNewEdge(this);
         System.out.println(viewModel.getWeights().get(this));
         this.weight.bind(viewModel.getWeights().get(this));
