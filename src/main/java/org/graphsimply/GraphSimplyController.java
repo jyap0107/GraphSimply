@@ -4,6 +4,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -83,16 +85,19 @@ public class GraphSimplyController implements Initializable {
         }
     }
     public void setCursorToSelect() {
+        removePrompt();
         viewModel.setCursor("select");
         viewModel.toggleDrag();
         viewModel.toggleClick();
     }
     public void setCursorToNode() {
+        removePrompt();
         viewModel.setCursor("node");
         viewModel.toggleDrag();
         viewModel.toggleClick();
     }
     public void setCursorToEdge() {
+        removePrompt();
         viewModel.setCursor("edge");
         viewModel.toggleDrag();
         viewModel.toggleClick();
@@ -116,6 +121,7 @@ public class GraphSimplyController implements Initializable {
     }
 
     public void showDFS() {
+        removePrompt();
         if (viewModel.getNumNodes() == 0) {
             dfsText.setText("No nodes in graph");
             dfsLabel.setText("DFS from Node");
@@ -159,9 +165,11 @@ public class GraphSimplyController implements Initializable {
         if (!viewModel.getIsColored()) removePrompt();
     }
     public void showEulerianPath() {
+        removePrompt();
         viewModel.getEulerianPath();
     }
     public void showShortestPaths() {
+        removePrompt();
         if (viewModel.getNumNodes() == 0) {
             shortestPathsText.setText("No nodes in graph");
             shortestPathsLabel.setText("Shortest paths from Node");
@@ -202,6 +210,15 @@ public class GraphSimplyController implements Initializable {
                 "\nTo simulate an unweighted graph, keep all node weights as 0.");
         alert.showAndWait();
 
+    }
+    public void escapePrompt(KeyEvent event) {
+        if (event.getCode().equals(KeyCode.ESCAPE)) {
+            System.out.println("yes");
+            viewModel.setCursor(viewModel.getPrevCursor());
+            viewModel.toggleDrag();
+            viewModel.toggleClick();
+            removePrompt();
+        }
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

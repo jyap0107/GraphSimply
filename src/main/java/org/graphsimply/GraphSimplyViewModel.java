@@ -51,6 +51,7 @@ public class GraphSimplyViewModel {
     public void toggleDrag() {
         if (cursor.equals("select")) {
             for (GraphNode node : connections.keySet()) {
+                System.out.println(node.getName().get());
                 node.enableDrag();
             }
         }
@@ -63,6 +64,7 @@ public class GraphSimplyViewModel {
     public void toggleClick() {
         if (cursor.equals("edge") || cursor.equals("dfs") || cursor.equals("bfs") || cursor.equals("shortestPaths")) {
             for (GraphNode node : connections.keySet()) {
+                System.out.println(node.getName().get());
                 node.enableClick();
             }
         }
@@ -202,6 +204,7 @@ public class GraphSimplyViewModel {
     }
 
     public void setPrevCursor(String prevCursor) {
+
         this.prevCursor = prevCursor;
     }
 
@@ -240,6 +243,7 @@ public class GraphSimplyViewModel {
         new SimpleStringProperty("");
         defaultNames = new String[]{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
                 "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+        model.clearModel();
     }
     //Move to view?
     public boolean colorGraph() {

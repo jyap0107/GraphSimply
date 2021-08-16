@@ -17,6 +17,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
@@ -100,11 +101,14 @@ public class GraphNode extends Circle {
             ArrayList<GraphEdge> incidentEdges = viewModel.getIncidentEdges(this);
             if (incidentEdges != null) {
                 ArrayList<Label> edgeLabels = new ArrayList<>();
+                ArrayList<Polygon> arrowTips = new ArrayList<>();
                 for (GraphEdge edge : incidentEdges) {
                     edgeLabels.add(edge.getLabel());
+                    arrowTips.add(edge.getArrowTip());
                 }
                 pane.getChildren().removeAll(incidentEdges);
                 pane.getChildren().removeAll(edgeLabels);
+                pane.getChildren().removeAll(arrowTips);
                 viewModel.removeEdgesFromNode(this, incidentEdges);
             }
             // Remove from model
@@ -190,12 +194,20 @@ public class GraphNode extends Circle {
             else {
                 // Disallow duplicate edges.
                 boolean canMakeEdge = true;
+                boolean edgeExistsBetween = false;
                 for (GraphEdge edge : viewModel.getEdges()) {
                     if (edge.getSource().equals(source) && edge.getTarget().equals(this)) canMakeEdge = false;
+                    if (edge.getSource().equals(this) && edge.getTarget().equals(source)) edgeExistsBetween = true;
                 }
-                if (canMakeEdge) {
+                if (canMakeEdge && !source.equals(this)) {
+                    GraphEdge edge;
+                    if (viewModel.getDirected() && edgeExistsBetween) {
+                        edge = new GraphEdge(source, this, viewModel, view, true);
+                    }
                     // Already adds to the model via VM
-                    GraphEdge edge = new GraphEdge(source, this, viewModel, view);
+                    else {
+                        edge = new GraphEdge(source, this, viewModel, view, false);
+                    }
                     view.getPane().getChildren().add(0, edge);
                 }
                 // Regardless of if edge is made, reset effect and source.
@@ -245,12 +257,20 @@ public class GraphNode extends Circle {
         this.removeEventHandler(MouseEvent.MOUSE_DRAGGED, onDrag);
         this.removeEventHandler(MouseEvent.MOUSE_ENTERED, cursorToHand);
         this.removeEventHandler(MouseEvent.MOUSE_EXITED, cursorToDefault);
+        this.removeEventHandler(MouseEvent.MOUSE_RELEASED, cursorToHand);
     }
     public void enableClick() {
         this.addEventHandler(MouseEvent.MOUSE_CLICKED, onClick);
+        System.out.println("Removing cursor");
+        this.removeEventHandler(MouseEvent.MOUSE_ENTERED, cursorToHand);
+        this.removeEventHandler(MouseEvent.MOUSE_EXITED, cursorToDefault);
+        this.removeEventHandler(MouseEvent.MOUSE_RELEASED, cursorToHand);
     }
     public void disableClick() {
         this.removeEventHandler(MouseEvent.MOUSE_CLICKED, onClick);
+        this.removeEventHandler(MouseEvent.MOUSE_ENTERED, cursorToHand);
+        this.removeEventHandler(MouseEvent.MOUSE_EXITED, cursorToDefault);
+        this.removeEventHandler(MouseEvent.MOUSE_RELEASED, cursorToHand);
     }
 
     public StringProperty getName() {

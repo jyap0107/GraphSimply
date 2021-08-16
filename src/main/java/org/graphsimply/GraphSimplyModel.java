@@ -158,9 +158,13 @@ public class GraphSimplyModel {
             }
         }
         while (visited.size() < adjacencyList.size() && !visited.contains(current)) {
-            if (adjacencyList.get(current).keySet().isEmpty()) break;
+            if (adjacencyList.get(current).keySet().isEmpty()) {
+                visited.add(current);
+                break;
+            }
             for (String adjNode : adjacencyList.get(current).keySet()) {
                 // Add if not visited
+                System.out.println(adjNode);
                 if (!visited.contains(current)) {
                     visited.add(current);
                 }
