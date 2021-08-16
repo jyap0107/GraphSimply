@@ -234,6 +234,7 @@ public class GraphNode extends Circle {
             view.removePrompt();
         }
         if (viewModel.getCursor().equals("shortestPaths")) {
+            mouseEvent.consume();
             viewModel.getShortestPaths(this);
             viewModel.setCursor(viewModel.getPrevCursor());
             viewModel.toggleDrag();
@@ -268,9 +269,6 @@ public class GraphNode extends Circle {
     }
     public void disableClick() {
         this.removeEventHandler(MouseEvent.MOUSE_CLICKED, onClick);
-        this.removeEventHandler(MouseEvent.MOUSE_ENTERED, cursorToHand);
-        this.removeEventHandler(MouseEvent.MOUSE_EXITED, cursorToDefault);
-        this.removeEventHandler(MouseEvent.MOUSE_RELEASED, cursorToHand);
     }
 
     public StringProperty getName() {
